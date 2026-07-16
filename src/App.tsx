@@ -33,6 +33,16 @@ import {
 } from 'lucide-react';
 import { SongSynthesizer, MusicStyle } from './audioSynth';
 
+const getApiUrl = (path: string): string => {
+  const host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.run.app')) {
+    return path;
+  }
+  // Fallback to our real hosted Google Cloud Run backend for other platforms like Netlify
+  const CLOUD_RUN_URL = 'https://ais-pre-gnh6lak3hu3kg7lxscy334-672646129889.asia-east1.run.app';
+  return `${CLOUD_RUN_URL}${path}`;
+};
+
 // prebuilt voices metadata
 interface VoiceCharacter {
   id: string;
@@ -424,7 +434,7 @@ export default function App() {
     const sampleText = getSampleText(voiceId, lang);
 
     try {
-      const response = await fetch('/api/tts', {
+      const response = await fetch(getApiUrl('/api/tts'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -528,7 +538,7 @@ export default function App() {
     }, 100);
 
     try {
-      const response = await fetch('/api/tts', {
+      const response = await fetch(getApiUrl('/api/tts'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -613,7 +623,7 @@ export default function App() {
 
     try {
       // 1. Compose lyrics matching prompt
-      const res = await fetch('/api/generate-song', {
+      const res = await fetch(getApiUrl('/api/generate-song'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -637,7 +647,7 @@ export default function App() {
       setIsGeneratingSong(false); // Done with stage 1
       setIsSynthesizingVocals(true);
 
-      const resTts = await fetch('/api/tts', {
+      const resTts = await fetch(getApiUrl('/api/tts'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

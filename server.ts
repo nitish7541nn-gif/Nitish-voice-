@@ -162,8 +162,8 @@ function customEdgeTts(text: string, options: { voice: string; pitch: string; ra
       });
 
       // Dynamic safety timeout: terminate and fail-fast if synthesis gets stuck
-      // Base timeout of 25 seconds + 40ms per character (up to 75 seconds max) to allow long speech streaming to finish safely
-      const calculatedTimeout = Math.max(25000, Math.min(75000, text.length * 40));
+      // Base timeout of 10 seconds + 30ms per character (up to 30 seconds max) to allow fast responsive streaming
+      const calculatedTimeout = Math.max(10000, Math.min(30000, text.length * 30));
       const timeoutTimer = setTimeout(() => {
         if (!isFinished) {
           isFinished = true;
@@ -221,7 +221,7 @@ function customEdgeTts(text: string, options: { voice: string; pitch: string; ra
           synthesis: {
             audio: {
               metadataoptions: { sentenceBoundaryEnabled: false, wordBoundaryEnabled: false },
-              outputFormat: 'audio-24khz-96kbitrate-mono-mp3',
+              outputFormat: 'audio-24khz-48kbitrate-mono-mp3',
             }
           }
         }
@@ -348,6 +348,17 @@ async function pLimit<T>(items: any[], limit: number, fn: (item: any) => Promise
 
 const app = express();
 const port = 3000;
+
+// CORS headers to support deployment on static hosts like Netlify
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 app.use(express.json());
 
@@ -654,8 +665,8 @@ app.post('/api/tts', async (req, res) => {
       console.log(`Generating Edge TTS. Text: "${cleanText.substring(0, 30)}...", Voice: ${edgeVoice}, Pitch: ${edgePitch}, Rate: ${edgeRate}`);
       
       try {
-        // Split text into highly-optimal chunks (up to 1000 chars) for fast parallel streaming and complete robustness against network lag
-        const chunks = splitTextIntoChunks(cleanText, 1000);
+        // Split text into highly-optimal chunks (up to 400 chars) for fast parallel streaming and complete robustness against network lag
+        const chunks = splitTextIntoChunks(cleanText, 400);
         console.log(`Generating Edge TTS for ${chunks.length} chunks...`);
         
         // Concurrency limit of 5 chunks per active request to balance maximum throughput and solid connection stability
