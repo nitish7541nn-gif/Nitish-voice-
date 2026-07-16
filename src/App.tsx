@@ -769,7 +769,7 @@ export default function App() {
     }
 
     try {
-      const res = await fetch('/api/generate-song', {
+      const res = await fetch(getApiUrl('/api/generate-song'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -827,7 +827,7 @@ export default function App() {
     setRecordedSongUrl(null);
 
     try {
-      const res = await fetch('/api/tts', {
+      const res = await fetch(getApiUrl('/api/tts'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -1066,19 +1066,19 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-between selection:bg-indigo-100 selection:text-indigo-900" id="app_root">
       
       {/* Invisible HTML5 Audio Element for Voice Generator */}
-      <audio 
-        ref={audioRef} 
-        src={audioUrl || undefined}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-        onEnded={handleAudioEnded}
-        onError={(e) => {
-          console.error("Audio element error event:", e);
-          if (audioUrl) {
+      {audioUrl && (
+        <audio 
+          ref={audioRef} 
+          src={audioUrl}
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onEnded={handleAudioEnded}
+          onError={() => {
+            console.error("Audio element playback error for URL:", audioUrl);
             setError("प्लेबैक में समस्या आई (Audio playback failed. Please try again.)");
-          }
-        }}
-      />
+          }}
+        />
+      )}
 
       {/* Modern Navigation Header Bar */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 py-3 shadow-xs" id="app_header">
