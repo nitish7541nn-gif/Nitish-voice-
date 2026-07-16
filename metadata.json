@@ -1,0 +1,6 @@
+{
+  "name": "Nitish Voice",
+  "description": "एक अत्यंत सरल और साफ-सुथरा AI आवाज़ जनरेटर जो आपके लिखे हुए हिंदी या इंग्लिश टेक्स्ट को लड़की या लड़के की पतली या मोटी आवाज़ में बदल सकता है।",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
